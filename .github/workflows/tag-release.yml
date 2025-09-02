@@ -80,6 +80,7 @@ jobs:
           # disabling shellcheck as replace does not work
           # shellcheck disable=SC2001
           VERSION_TAG=$(echo "${{ inputs.tagFormat }}" | sed "s/\${version}/$NEXT_VERSION/")
+          echo "tagFormat: ${{ inputs.tagFormat }}"
           echo "VERSION_TAG: $VERSION_TAG"
 
           echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
