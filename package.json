@@ -2,6 +2,9 @@
     "name": "eps-workflow-semantic-release",
     "version": "1.0.0",
     "description": "A workflow to handle semantic versioning, releases and changelog generation.",
+    "scripts": {
+        "check-licenses": "node_modules/.bin/license-checker --failOn GPL --failOn LGPL"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/NHSDigital/eps-workflow-semantic-release"
