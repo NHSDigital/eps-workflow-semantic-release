@@ -14,4 +14,4 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   tag_release:
-    uses: ./.github/workflows/tag-release.yml
+    uses: NHSDigital/eps-workflow-semantic-release/.github/workflows/tag-release.yml@main
