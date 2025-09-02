@@ -1,0 +1,27 @@
+{
+    "folders": [
+        {
+            "name": "eps-workflow-quality-checks",
+            "path": ".."
+        }
+    ],
+    "settings": {
+        "cSpell.dictionaries": [
+            "en-GB"
+        ],
+        "cSpell.ignorePaths": [
+            "package-lock.json",
+            "node_modules",
+            ".vscode"
+        ]
+    },
+    "extensions": {
+        "recommendations": [
+            "eamodio.gitlens",
+            "github.vscode-pull-request-github",
+            "redhat.vscode-yaml",
+            "streetsidesoftware.code-spell-checker",
+            "timonwong.shellcheck"
+        ]
+    }
+}

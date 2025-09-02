@@ -1,0 +1,18 @@
+{
+    "name": "eps-workflow-semantic-release",
+    "version": "1.0.0",
+    "description": "A workflow to handle semantic versioning, releases and changelog generation.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/NHSDigital/eps-workflow-semantic-release"
+    },
+    "author": "NHS England",
+    "license": "MIT",
+    "devDependencies": {
+        "@semantic-release/changelog": "^6.0.3",
+        "@semantic-release/commit-analyzer": "^13.0.0",
+        "@semantic-release/release-notes-generator": "^14.0.1",
+        "conventional-changelog-eslint": "^6.0.0",
+        "semantic-release": "^24.2.0"
+    }
+}
