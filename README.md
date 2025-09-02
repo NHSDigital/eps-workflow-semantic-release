@@ -55,4 +55,3 @@ jobs:
   pr_title_format_check:
     uses: NHSDigital/eps-workflow-semantic-release/.github/workflows/pr_title_check.yml@1.0.0
 ```
-
