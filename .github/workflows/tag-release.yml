@@ -18,10 +18,24 @@ jobs:
     outputs:
       version_tag: ${{steps.output_version_tag.outputs.VERSION_TAG}}
     steps:
+      - name: Find calling tag
+        id: find_calling_tag
+        run: |
+          # pull tag from github.workflow_ref to know which tag to checkout in next step
+          echo "Workflow called from ${{ github.workflow_ref }}"
+
+          CALLING_REF="${{ github.workflow_ref }}"
+          CALLING_TAG="${CALLING_REF#*@}"
+
+          echo "Calling tag: ${CALLING_TAG}"
+
+          echo "CALLING_TAG=${CALLING_TAG}" >> "$GITHUB_ENV"
+
       - name: Checkout semantic-release workflow
         uses: actions/checkout@v5
         with:
-          repository: ${{ github.workflow_ref }}
+          repository: NHSDigital/eps-workflow-semantic-release
+          ref: ${{ env.CALLING_TAG }}
 
       # using git commit sha for version of action to ensure we have stable version
       - name: Install asdf
