@@ -6,7 +6,7 @@ on:
       tagFormat:
         type: string
         required: false
-        default: "v${version}"
+        default: ""
       semRelArgs:
         type: string
         required: false
@@ -73,15 +73,16 @@ jobs:
         working-directory: calling-repo
         run: |
           VERSION_TAG=$(git rev-parse --short HEAD)
-          echo "VERSION_TAG: $VERSION_TAG"
           NEXT_VERSION=$(npx semantic-release --dry-run ${{ inputs.semRelArgs }} | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
-          echo "NEXT_VERSION: $NEXT_VERSION"
+
+          tagFormat="${{ inputs.tagFormat }}"
+          if [ -z "${tagFormat}" ]; then
+            tagFormat="v\${version}"
+          fi
 
           # disabling shellcheck as replace does not work
           # shellcheck disable=SC2001
-          VERSION_TAG=$(echo "${{ inputs.tagFormat }}" | sed "s/\${version}/$NEXT_VERSION/")
-          echo "tagFormat: ${{ inputs.tagFormat }}"
-          echo "VERSION_TAG: $VERSION_TAG"
+          VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
 
           echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
           echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
