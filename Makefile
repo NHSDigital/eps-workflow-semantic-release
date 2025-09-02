@@ -3,6 +3,8 @@
 install:
 	npm ci
 
+test:
+
 lint: lint-githubactions
 
 lint-githubactions:
