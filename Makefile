@@ -3,6 +3,11 @@
 install:
 	npm ci
 
+lint: lint-githubactions
+
+lint-githubactions:
+	actionlint
+
 check-licenses:
 	npm run check-licenses
 
