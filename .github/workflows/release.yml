@@ -14,4 +14,5 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   tag_release:
+    needs: quality_checks
     uses: ./.github/workflows/tag-release.yml
