@@ -84,8 +84,16 @@ jobs:
         working-directory: calling-repo
         run: |
           NEXT_VERSION=$(npx semantic-release --tag-format ${{ inputs.tagFormat }} --dry-run ${{ inputs.semRelArgs }} | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
-          echo "NEXT_VERSION=${NEXT_VERSION}" >> "$GITHUB_ENV"
           echo "NEXT_VERSION=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
+
+          tagFormat="${{ inputs.tagFormat }}"
+          # disabling shellcheck as replace does not work
+          # shellcheck disable=SC2001
+          VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+
+          echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
+          echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_ENV"
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -106,7 +114,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           repo: ${{ github.repository }}
-          tag: ${{ env.NEXT_VERSION }}
+          tag: ${{ env.VERSION_TAG }}
 
       - name: Edit Release
         if: ${{ steps.output_version_tag.outputs.NEXT_VERSION != '' }}
