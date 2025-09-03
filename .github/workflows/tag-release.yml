@@ -37,31 +37,28 @@ jobs:
           repository: NHSDigital/eps-workflow-semantic-release
           ref: ${{ env.CALLING_TAG }}
 
-      # using git commit sha for version of action to ensure we have stable version
-      - name: Install asdf
-        uses: asdf-vm/actions/setup@1902764435ca0dd2f3388eea723a4f92a4eb8302
-        with:
-          asdf_branch: v0.11.3
+      - name: Set asdf version
+        id: asdf_version
+        run: echo "ASDF_VERSION=v0.18.0" >> "$GITHUB_ENV"
 
       - name: Cache asdf
+        id: asdf_cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
+          key: ${{ runner.os }}-asdf-${{ env.ASDF_VERSION }}-${{ hashFiles('**/.tool-versions') }}
           restore-keys: |
-            ${{ runner.os }}-asdf-
+            ${{ runner.os }}-asdf-${{ env.ASDF_VERSION }}-
 
       - name: Install asdf dependencies in .tool-versions
+        if: ${{ steps.asdf_cache.outputs.cache-hit != 'true' }}
         uses: asdf-vm/actions/install@1902764435ca0dd2f3388eea723a4f92a4eb8302
         with:
-          asdf_branch: v0.11.3
-
-      - name: Install node packages
-        run: |
-          npm ci
+          asdf_branch: ${{ env.ASDF_VERSION }}
 
       - name: Cache node_modules
+        id: node_cache
         uses: actions/cache@v4
         with:
           path: |
@@ -69,6 +66,11 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-modules-
+
+      - name: Install node packages
+        if: ${{ steps.node_cache.outputs.cache-hit != 'true' }}
+        run: |
+          npm ci
 
       - name: Partial-clone calling repo
         uses: actions/checkout@v5
