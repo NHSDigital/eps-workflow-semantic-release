@@ -83,7 +83,7 @@ jobs:
         id: output_version_tag
         working-directory: calling-repo
         run: |
-          NEXT_VERSION=$(npx semantic-release --dry-run ${{ inputs.semRelArgs }} | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+          NEXT_VERSION=$(npx semantic-release --tag-format ${{ inputs.tagFormat }} --dry-run ${{ inputs.semRelArgs }} | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
           echo "NEXT_VERSION=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
 
           tagFormat="${{ inputs.tagFormat }}"
