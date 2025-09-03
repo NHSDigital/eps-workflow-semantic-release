@@ -61,6 +61,15 @@ jobs:
         run: |
           npm ci
 
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
       - name: Partial-clone calling repo
         uses: actions/checkout@v5
         with:
@@ -91,6 +100,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: tag release
+        if: ${{ steps.output_version_tag.outputs.VERSION_TAG != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: calling-repo
@@ -99,6 +109,7 @@ jobs:
 
       - name: Get release for editing
         id: get_release
+        if: ${{ steps.output_version_tag.outputs.VERSION_TAG != '' }}
         # version 1.2.4
         uses: cardinalby/git-get-release-action@5172c3a026600b1d459b117738c605fabc9e4e44
         env:
@@ -108,6 +119,7 @@ jobs:
           tag: ${{ env.VERSION_TAG }}
 
       - name: Edit Release
+        if: ${{ steps.output_version_tag.outputs.VERSION_TAG != '' }}
         # version 1.2.0
         uses: irongut/EditRelease@ccf529ad26dddf9996e7dd0f24ca5da4ea507cc2
         with:
