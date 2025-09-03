@@ -6,7 +6,7 @@ on:
       tagFormat:
         type: string
         required: false
-        default: ""
+        default: "v\\${version}"
       semRelArgs:
         type: string
         required: false
@@ -83,21 +83,9 @@ jobs:
         id: output_version_tag
         working-directory: calling-repo
         run: |
-          NEXT_VERSION=$(npx semantic-release --dry-run ${{ inputs.semRelArgs }} | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+          NEXT_VERSION=$(npx semantic-release --tag-format ${{ inputs.tagFormat }} --dry-run ${{ inputs.semRelArgs }} | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+          echo "NEXT_VERSION=${NEXT_VERSION}" >> "$GITHUB_ENV"
           echo "NEXT_VERSION=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
-
-          tagFormat="${{ inputs.tagFormat }}"
-          if [ -z "${tagFormat}" ]; then
-            tagFormat="v\${version}"
-          fi
-
-          # disabling shellcheck as replace does not work
-          # shellcheck disable=SC2001
-          VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
-
-          echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
-          echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
-          echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_ENV"
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -107,7 +95,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: calling-repo
         run: |
-          npx semantic-release ${{ inputs.semRelArgs }}
+          npx semantic-release --tag-format ${{ inputs.tagFormat }} ${{ inputs.semRelArgs }}
 
       - name: Get release for editing
         id: get_release
@@ -118,7 +106,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           repo: ${{ github.repository }}
-          tag: ${{ env.VERSION_TAG }}
+          tag: ${{ env.NEXT_VERSION }}
 
       - name: Edit Release
         if: ${{ steps.output_version_tag.outputs.NEXT_VERSION != '' }}
