@@ -10,7 +10,7 @@ This workflow uses the semantic-release npm package to generate a new version ta
 
 #### Inputs
 
-- `tagFormat`: Default `v${version}`. A template for the version tag.
+- `tagFormat`: Default `v\\${version}`. A template for the version tag.
 - `semRelArgs`: Optional arguments to use when calling semantic-release
 
 #### Example
@@ -26,6 +26,8 @@ on:
 jobs:
   tag_release:
     uses: NHSDigital/eps-workflow-semantic-release/.github/workflows/tag-release.yml@1.0.0
+  with:
+    tagFormat: "v\\${version}-beta"
 ```
 
 #### Mechanics
