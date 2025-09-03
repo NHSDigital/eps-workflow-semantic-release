@@ -16,3 +16,5 @@ jobs:
   tag_release:
     needs: quality_checks
     uses: ./.github/workflows/tag-release.yml
+    with:
+      tagFormat: "v\\${version}-beta"
