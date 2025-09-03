@@ -57,11 +57,8 @@ jobs:
         with:
           asdf_branch: v0.11.3
 
-      - name: Install node packages
-        run: |
-          npm ci
-
       - name: Cache node_modules
+        id: node_cache
         uses: actions/cache@v4
         with:
           path: |
@@ -69,6 +66,11 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-modules-
+
+      - name: Install node packages
+        if: ${{ steps.node_cache.outputs.cache-hit != 'true' }}
+        run: |
+          npm ci
 
       - name: Partial-clone calling repo
         uses: actions/checkout@v5
