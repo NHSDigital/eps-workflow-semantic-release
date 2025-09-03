@@ -11,6 +11,10 @@ on:
         type: string
         required: false
         default: ""
+      asdfVersion:
+        type: string
+        required: false
+        default: "v0.18.0"
 
 jobs:
   tag_release:
@@ -37,25 +41,21 @@ jobs:
           repository: NHSDigital/eps-workflow-semantic-release
           ref: ${{ env.CALLING_TAG }}
 
-      - name: Set asdf version
-        id: asdf_version
-        run: echo "ASDF_VERSION=v0.18.0" >> "$GITHUB_ENV"
-
       - name: Cache asdf
         id: asdf_cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ env.ASDF_VERSION }}-${{ hashFiles('**/.tool-versions') }}
+          key: ${{ runner.os }}-asdf-${{ inputs.asdfVersion }}-${{ hashFiles('**/.tool-versions') }}
           restore-keys: |
-            ${{ runner.os }}-asdf-${{ env.ASDF_VERSION }}-
+            ${{ runner.os }}-asdf-${{ inputs.asdfVersion }}-
 
       - name: Install asdf dependencies in .tool-versions
         if: ${{ steps.asdf_cache.outputs.cache-hit != 'true' }}
         uses: asdf-vm/actions/install@1902764435ca0dd2f3388eea723a4f92a4eb8302
         with:
-          asdf_branch: ${{ env.ASDF_VERSION }}
+          asdf_branch: ${{ inputs.asdfVersion }}
 
       - name: Cache node_modules
         id: node_cache
