@@ -44,7 +44,7 @@ jobs:
         id: asdf_cache_key
         run: |
           base="${{ runner.os }}-asdf-${{ inputs.asdfVersion }}"
-          key="${base}-${{ hashFiles('**/.tool-versions') }}"
+          key="$base-${{ hashFiles('**/.tool-versions') }}"
 
           echo "base=$base" >> "$GITHUB_OUTPUT"
           echo "key=$key" >> "$GITHUB_OUTPUT"
@@ -72,8 +72,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: asdf.tar.gz
-          key: ${{ steps.installed_cache_key.outputs.key }}-artifact
-          restore-keys: ${{ steps.installed_cache_key.outputs.base }}-artifact
+          key: ${{ steps.artifact_cache_key.outputs.key }}
+          restore-keys: ${{ steps.artifact_cache_key.outputs.base }}*
 
       - name: Cache asdf with installed npm packages
         if: ${{ steps.asdf_artifact_cache.outputs.cache-hit != 'true' }}
