@@ -15,6 +15,10 @@ This workflow uses the semantic-release npm package to generate a new version ta
 - `useNpm`: Default false. If true, semantic-release will publish npm.
 - `asdfVersion`: Override the version of asdf to install.
 
+#### Outputs
+
+- `version_tag`: The version tag created by semantic-release.
+
 #### Example
 
 To use this workflow in your repository, call it from another workflow file:
