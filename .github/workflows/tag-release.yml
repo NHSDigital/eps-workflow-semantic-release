@@ -44,24 +44,10 @@ jobs:
         id: asdf_cache_key
         run: |
           base="${{ runner.os }}-asdf-${{ inputs.asdfVersion }}"
-          key="${base}-${{ hashFiles('**/.tool-versions') }}"
+          key="$base-${{ hashFiles('**/.tool-versions') }}"
 
           echo "base=$base" >> "$GITHUB_OUTPUT"
           echo "key=$key" >> "$GITHUB_OUTPUT"
-
-      - name: Cache asdf
-        id: asdf_cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ steps.asdf_cache_key.outputs.key }}
-          restore-keys: |
-            ${{ steps.asdf_cache_key.outputs.base }}*
-
-      - name: Install asdf dependencies in .tool-versions
-        uses: asdf-vm/actions/install@1902764435ca0dd2f3388eea723a4f92a4eb8302
-        with:
-          asdf_branch: ${{ inputs.asdfVersion }}
 
       - name: Calculate installed cache key
         id: installed_cache_key
@@ -72,7 +58,25 @@ jobs:
           echo "base=$base" >> "$GITHUB_OUTPUT"
           echo "key=$key" >> "$GITHUB_OUTPUT"
 
+      - name: Calculate artifact cache key
+        id: artifact_cache_key
+        run: |
+          base="${{ steps.installed_cache_key.outputs.key }}"
+          key="$base-artifact"
+
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+
+      - name: Cache asdf artifact
+        id: asdf_artifact_cache
+        uses: actions/cache@v4
+        with:
+          path: asdf.tar.gz
+          key: ${{ steps.artifact_cache_key.outputs.key }}
+          restore-keys: ${{ steps.artifact_cache_key.outputs.base }}*
+
       - name: Cache asdf with installed npm packages
+        if: ${{ steps.asdf_artifact_cache.outputs.cache-hit != 'true' }}
         id: installed_cache
         uses: actions/cache@v4
         with:
@@ -80,22 +84,30 @@ jobs:
           key: ${{ steps.installed_cache_key.outputs.key }}
           restore-keys: ${{ steps.installed_cache_key.outputs.base }}*
 
-      - name: Install semantic release dependencies globally
+      - name: Cache asdf
         if: ${{ steps.installed_cache.outputs.cache-hit != 'true' }}
+        id: asdf_cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.asdf
+          key: ${{ steps.asdf_cache_key.outputs.key }}
+          restore-keys: |
+            ${{ steps.asdf_cache_key.outputs.base }}*
+
+      - name: Install asdf dependencies in .tool-versions
+        if: ${{ steps.asdf_cache.outputs.cache-hit != 'true' || steps.installed_cache.outputs.cache-hit != 'true' || steps.asdf_artifact_cache.outputs.cache-hit != 'true' }}
+        uses: asdf-vm/actions/install@1902764435ca0dd2f3388eea723a4f92a4eb8302
+        with:
+          asdf_branch: ${{ inputs.asdfVersion }}
+
+      - name: Install semantic release dependencies globally
+        if: ${{ steps.installed_cache.outputs.cache-hit != 'true' || steps.asdf_artifact_cache.outputs.cache-hit != 'true' }}
         run: |
           dependencies="$(jq -r '.devDependencies | to_entries | map("\(.key)@\(.value)") | join(" ")' package.json)"
           echo "Installing: $dependencies"
 
           # shellcheck disable=SC2086
           npm install --global $dependencies
-
-      - name: Cache asdf artifact
-        id: asdf_artifact_cache
-        uses: actions/cache@v4
-        with:
-          path: asdf.tar.gz
-          key: ${{ steps.installed_cache_key.outputs.key }}-artifact
-          restore-keys: ${{ steps.installed_cache_key.outputs.base }}-artifact
 
       - name: Prepare asdf artifact
         if: ${{ steps.asdf_artifact_cache.outputs.cache-hit != 'true' }}
