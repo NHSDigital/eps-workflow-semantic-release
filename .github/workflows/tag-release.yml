@@ -76,7 +76,7 @@ jobs:
           restore-keys: ${{ steps.artifact_cache_key.outputs.base }}*
 
       - name: Cache asdf with installed npm packages
-        if: ${{ steps.asdf_artifact_cache.outputs.cache-hit == 'false' }}
+        if: ${{ steps.asdf_artifact_cache.outputs.cache-hit != 'true' }}
         id: installed_cache
         uses: actions/cache@v4
         with:
@@ -85,7 +85,7 @@ jobs:
           restore-keys: ${{ steps.installed_cache_key.outputs.base }}*
 
       - name: Cache asdf
-        if: ${{ steps.installed_cache.outcome == 'success' && steps.installed_cache.outputs.cache-hit == 'false' }}
+        if: ${{ steps.installed_cache.outcome == 'success' && steps.installed_cache.outputs.cache-hit != 'true' }}
         id: asdf_cache
         uses: actions/cache@v4
         with:
