@@ -85,7 +85,7 @@ jobs:
           restore-keys: ${{ steps.installed_cache_key.outputs.base }}*
 
       - name: Cache asdf
-        if: ${{ steps.installed_cache.outputs.cache-hit != 'true' }}
+        if: ${{ steps.installed_cache.outputs.cache-hit != 'true' || steps.installed_cache.outcome != 'skipped' }}
         id: asdf_cache
         uses: actions/cache@v4
         with:
