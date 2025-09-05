@@ -95,13 +95,13 @@ jobs:
             ${{ steps.asdf_cache_key.outputs.base }}*
 
       - name: Install asdf dependencies in .tool-versions
-        if: ${{ steps.asdf_cache.outputs.cache-hit != 'true' || steps.installed_cache.outputs.cache-hit != 'true' || steps.asdf_artifact_cache.outputs.cache-hit != 'true' }}
+        if: ${{ steps.asdf_cache.outputs.cache-hit == 'false' || steps.asdf_cache.outcome != 'skipped' }}
         uses: asdf-vm/actions/install@1902764435ca0dd2f3388eea723a4f92a4eb8302
         with:
           asdf_branch: ${{ inputs.asdfVersion }}
 
       - name: Install semantic release dependencies globally
-        if: ${{ steps.installed_cache.outputs.cache-hit != 'true' || steps.asdf_artifact_cache.outputs.cache-hit != 'true' }}
+        if: ${{ steps.installed_cache.outputs.cache-hit == 'false' || steps.installed_cache.outcome != 'skipped' }}
         run: |
           dependencies="$(jq -r '.devDependencies | to_entries | map("\(.key)@\(.value)") | join(" ")' package.json)"
           echo "Installing: $dependencies"
