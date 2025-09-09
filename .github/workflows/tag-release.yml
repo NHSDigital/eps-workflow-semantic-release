@@ -139,7 +139,7 @@ jobs:
       version_tag: ${{steps.output_version_tag.outputs.VERSION_TAG}}
     steps:
       - name: Fetch asdf artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: asdf_artifact
 
@@ -173,7 +173,7 @@ jobs:
           ref: ${{ github.sha }}
 
       - name: Fetch semantic-release config
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: config_artifact
 
