@@ -12,3 +12,8 @@ jobs:
 
   pr_title_format_check:
     uses: ./.github/workflows/pr_title_check.yml
+
+  test_run:
+    uses: ./.github/workflows/tag-release.yml
+    with:
+      semRelArgs: "--dry-run"
