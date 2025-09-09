@@ -184,7 +184,7 @@ jobs:
         run: |
           SEMANTIC_RELEASE_OUTPUT=$(semantic-release \
               --dry-run \
-              --tag-format "${{ inputs.tagFormat }}" \
+              --tag-format ${{ inputs.tagFormat }} \
               ${{ inputs.semRelArgs }})
           echo "$SEMANTIC_RELEASE_OUTPUT"
 
@@ -208,8 +208,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           semantic-release \
-              --tag-format "${{ inputs.tagFormat }}" \
-              "${{ inputs.semRelArgs }}"
+              --tag-format ${{ inputs.tagFormat }} \
+              ${{ inputs.semRelArgs }}
 
       - name: Get release for editing
         id: get_release
