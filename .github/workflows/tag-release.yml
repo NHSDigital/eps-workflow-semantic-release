@@ -179,12 +179,19 @@ jobs:
 
       - name: Get next version tag
         id: output_version_tag
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TAG_FORMAT: ${{ inputs.tagFormat }}
+          SEMREL_ARGS: ${{ inputs.semRelArgs }}
         run: |
-          NEXT_VERSION=$(\
-           semantic-release \
+          SEMANTIC_RELEASE_OUTPUT=$(semantic-release \
               --dry-run \
-              --tag-format ${{ inputs.tagFormat }} \
-              ${{ inputs.semRelArgs }} \
+              --tag-format "$TAG_FORMAT" \
+              "$SEMREL_ARGS")
+          echo "$SEMANTIC_RELEASE_OUTPUT"
+
+          NEXT_VERSION=$(\
+            echo "$SEMANTIC_RELEASE_OUTPUT" \
             | grep -i 'The next release version is' \
             | sed -E 's/.* ([[:digit:].]+)$/\1/'\
           )
@@ -196,17 +203,17 @@ jobs:
           echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
           echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
           echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_ENV"
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Create Release
         if: ${{ steps.output_version_tag.outputs.NEXT_VERSION != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_FORMAT: ${{ inputs.tagFormat }}
+          SEMREL_ARGS: ${{ inputs.semRelArgs }}
         run: |
           semantic-release \
-              --tag-format ${{ inputs.tagFormat }} \
-              ${{ inputs.semRelArgs }}
+              --tag-format "$TAG_FORMAT" \
+              "$SEMREL_ARGS"
 
       - name: Get release for editing
         id: get_release
