@@ -185,7 +185,7 @@ jobs:
           SEMANTIC_RELEASE_OUTPUT=$(semantic-release \
               --dry-run \
               --tag-format "${{ inputs.tagFormat }}" \
-              "${{ inputs.semRelArgs }}")
+              ${{ inputs.semRelArgs }})
           echo "$SEMANTIC_RELEASE_OUTPUT"
 
           NEXT_VERSION=$(\
