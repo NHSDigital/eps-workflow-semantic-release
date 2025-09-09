@@ -181,13 +181,11 @@ jobs:
         id: output_version_tag
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          TAG_FORMAT: ${{ inputs.tagFormat }}
-          SEMREL_ARGS: ${{ inputs.semRelArgs }}
         run: |
           SEMANTIC_RELEASE_OUTPUT=$(semantic-release \
               --dry-run \
-              --tag-format "$TAG_FORMAT" \
-              "$SEMREL_ARGS")
+              --tag-format "${{ inputs.tagFormat }}" \
+              "${{ inputs.semRelArgs }}")
           echo "$SEMANTIC_RELEASE_OUTPUT"
 
           NEXT_VERSION=$(\
@@ -208,12 +206,10 @@ jobs:
         if: ${{ steps.output_version_tag.outputs.NEXT_VERSION != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_FORMAT: ${{ inputs.tagFormat }}
-          SEMREL_ARGS: ${{ inputs.semRelArgs }}
         run: |
           semantic-release \
-              --tag-format "$TAG_FORMAT" \
-              "$SEMREL_ARGS"
+              --tag-format "${{ inputs.tagFormat }}" \
+              "${{ inputs.semRelArgs }}"
 
       - name: Get release for editing
         id: get_release
