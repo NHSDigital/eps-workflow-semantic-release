@@ -44,7 +44,7 @@ jobs:
           if [[ "$PR_TITLE" =~ ^.*:.*\[([A-Z]+-[0-9]+|dependabot)\].*-.*$ ]]; then
             TICKET_REF="${BASH_REMATCH[1]}"
             echo "Extracted ticket reference: $TICKET_REF"
-            echo "$TICKET_REF" > "$GITHUB_OUTPUT"
+            echo "TICKET_REF=$TICKET_REF" > "$GITHUB_OUTPUT"
           else
             echo "No ticket reference found."
             exit 1
