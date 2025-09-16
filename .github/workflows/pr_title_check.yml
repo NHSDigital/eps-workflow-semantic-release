@@ -79,7 +79,8 @@ jobs:
           message: |
             The PR title does not conform to the required format.
             Please ensure your PR title is prefixed with a change type (Fix, Update, New, Breaking, Docs, Build, Upgrade, Chore)
-            and contains a ticket reference (eg. 'Fix: [AEA-####] - ...', or 'Chore: [dependabot] - ...').
+            and contains a ticket reference (eg. 'Fix: [AEA-####] - ...', or 'Chore: [dependabot] - ...'),
+            then push an empty commit or recreate your PR.
             See the contributing guide for more details:
             https://github.com/NHSDigital/eps-workflow-semantic-release/blob/main/CONTRIBUTING.md
           comment-tag: pr-link
