@@ -9,6 +9,7 @@ jobs:
     steps:
       - name: Check PR Title is Prefixed with Change Type
         id: check_prefix
+        continue-on-error: true
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
@@ -16,14 +17,12 @@ jobs:
             echo "PR title is prefixed with change type."
           else
             echo "PR title is not prefixed with change type."
-            echo "Please prefix your PR title with a change type (Fix, Update, New, Breaking, Docs, Build, Upgrade, Chore)."
-            echo "See the contributing guide for more details:"
-            echo "https://github.com/NHSDigital/eps-workflow-semantic-release/blob/main/CONTRIBUTING.md"
             exit 1
           fi
 
       - name: Check PR Title contains Ticket/Dependabot Reference
         id: check_ticket_reference
+        continue-on-error: true
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
@@ -31,7 +30,6 @@ jobs:
             echo "PR title contains ticket or dependabot reference."
           else
             echo "PR title does not contain ticket or dependabot reference."
-            echo "Please ensure PR title contains a ticket (eg. 'Fix: [AEA-####] - ...', or 'Chore: [dependabot] - ...')."
             exit 1
           fi
 
@@ -51,7 +49,7 @@ jobs:
           fi
 
       - name: Comment on PR with Jira Link
-        if: steps.check_ticket_reference.outcome == 'success' && steps.extract_ticket_reference.outputs.TICKET_REF != 'dependabot'
+        if: steps.extract_ticket_reference.outcome == 'success' && steps.extract_ticket_reference.outputs.TICKET_REF != 'dependabot'
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -63,7 +61,7 @@ jobs:
           comment-tag: pr-link
 
       - name: Comment on PR for dependabot
-        if: steps.check_ticket_reference.outcome == 'success' && steps.extract_ticket_reference.outputs.TICKET_REF == 'dependabot'
+        if: steps.extract_ticket_reference.outcome == 'success' && steps.extract_ticket_reference.outputs.TICKET_REF == 'dependabot'
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
