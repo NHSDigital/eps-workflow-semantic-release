@@ -46,7 +46,7 @@ The `tag_release` job will fetch this artifact, unzip it, setup `PATH` to use as
 
 ### PR Title Check
 
-This workflow checks that all pull requests have a title that matches the required format.
+This workflow checks that all pull requests have a title that matches the required format, and comments on the PR with a link to the relevant ticket if a ticket reference is found.
 
 #### Example
 
