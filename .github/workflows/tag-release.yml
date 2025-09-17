@@ -19,6 +19,9 @@ on:
         type: string
         required: false
         default: "v0.18.0"
+    outputs:
+      version_tag:
+        value: ${{ jobs.tag_release.outputs.version_tag }}
 
 jobs:
   install_semantic_release:
@@ -232,5 +235,5 @@ jobs:
           body: |
             ## Info
             [See code diff](${{ github.event.compare }})
-            [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) - Workflow ID: ${{ github.run_id }}
             It was initialized by [${{ github.event.sender.login }}](${{ github.event.sender.html_url }})
