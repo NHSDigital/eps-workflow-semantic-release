@@ -6,6 +6,8 @@ on:
 jobs:
   pr_title_format_check:
     runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: write
     steps:
       - name: Check PR Title is Prefixed with Change Type
         id: check_prefix
