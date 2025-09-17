@@ -5,8 +5,11 @@ on:
     branches: [main]
 
 jobs:
+  dependabot-auto-approve-and-merge:
+    uses: NHSDigital/eps-workflow-dependabot/.github/workflows/dependabot-auto-approve-and-merge.yml@4cb92ecad7c28e4b83f25a6d4433e8e8a0024f21
+
   quality_checks:
-    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@v4.1.1
+    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@925735aefc9dd1368930599587e0350a08e5df48
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
