@@ -12,7 +12,7 @@ jobs:
       AUTOMERGE_PEM: ${{ secrets.AUTOMERGE_PEM }}
 
   quality_checks:
-    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@925735aefc9dd1368930599587e0350a08e5df48
+    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@a7ef5c07fc995ed3ed748c7958d677660032bcad
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
