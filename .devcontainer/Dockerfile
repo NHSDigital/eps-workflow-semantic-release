@@ -23,13 +23,16 @@ ENV PATH="$PATH:/home/vscode/.asdf/bin/:/workspaces/eps-workflow-semantic-releas
 # Install ASDF plugins#
 RUN asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git; \
     asdf plugin add shellcheck https://github.com/luizm/asdf-shellcheck.git; \
-    asdf plugin add actionlint
+    asdf plugin add actionlint; \
+    asdf plugin add python; \
+    asdf plugin add poetry
 
 WORKDIR /workspaces/eps-workflow-semantic-release
 
 ADD .tool-versions /workspaces/eps-workflow-semantic-release/.tool-versions
 ADD .tool-versions /home/vscode/.tool-versions
 
-RUN asdf install; \
+RUN asdf install python; \
+    asdf install; \
     asdf reshim nodejs; \
     asdf reshim actionlint;

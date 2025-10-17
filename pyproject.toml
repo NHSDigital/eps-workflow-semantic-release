@@ -1,0 +1,21 @@
+
+[tool.poetry]
+name = "EPS semantic release workflow"
+version = "0.0.1-alpha"
+description = "EPS semantic release workflow"
+license = "MIT"
+authors = [
+    "EPS Team"
+]
+readme = "README.md"
+repository = "https://github.com/NHSDigital/eps-workflow-semantic-release"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pre-commit = "^4.1.0"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "^4.1.0"
+
+[tool.poetry.scripts]

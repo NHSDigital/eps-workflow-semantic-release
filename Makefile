@@ -1,7 +1,15 @@
 .PHONY: install
 
-install:
+install: install-python install-hooks install-node
+
+install-node:
 	npm ci
+
+install-python:
+	poetry install
+
+install-hooks: install-python
+	poetry run pre-commit install --install-hooks --overwrite
 
 test:
 
