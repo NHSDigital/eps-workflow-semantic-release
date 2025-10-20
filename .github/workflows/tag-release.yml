@@ -223,12 +223,6 @@ jobs:
             # Dry run mode: use short git SHA and get next version for summary
             VERSION_TAG=$(git rev-parse --short HEAD)
             NEXT_VERSION=$(grep -i 'The next release version is' semantic-release-output.log | sed -E 's/.* ([[:digit:].]+)$/\1/')
-            if [ -z "${NEXT_VERSION}" ]
-            then
-              echo "Could not get next tag. Here is the log from semantic-release"
-              cat semantic-release-output.log
-              exit ${exit_code}
-            fi
             tagFormat=$(node -e "const config=require('./release.config.js'); console.log(config.tagFormat)")
             if [ "${tagFormat}" = "null" ]
             then
@@ -239,6 +233,12 @@ jobs:
             NEW_VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
             echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
             echo "## NEXT TAG WILL BE : ${NEW_VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
+            if [ -z "${NEXT_VERSION}" ]
+            then
+              echo "Could not get next tag. Here is the log from semantic-release"
+              cat semantic-release-output.log
+              exit ${exit_code}
+            fi
           else
             # Production mode: get next version and create actual tag
             NEXT_VERSION=$($SEMANTIC_RELEASE_CMD | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
