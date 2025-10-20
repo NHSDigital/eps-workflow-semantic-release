@@ -28,3 +28,4 @@ jobs:
       asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
       dry_run: false
       branch_name: main
+      publish_package: false
