@@ -29,3 +29,4 @@ jobs:
       dry_run: false
       branch_name: main
       publish_package: false
+      tag_format: "v${version}"

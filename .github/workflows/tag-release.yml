@@ -19,6 +19,10 @@ on:
         description: "Whether to publish a package to an npm registry"
         required: true
         type: boolean
+      tag_format:
+        description: "The tag format to use for the release tags"
+        required: false
+        type: string
     outputs:
       version_tag:
         value: ${{ jobs.tag_release.outputs.version_tag }}
@@ -219,7 +223,7 @@ jobs:
             # Determine semantic-release command based on branch
             if [ "${BRANCH_NAME}" = "main" ]; then
               echo "on main branch"
-              npx semantic-release --dry-run > semantic-release-output.log
+              npx semantic-release --dry-run --tag-format "${TAG_FORMAT}" > semantic-release-output.log
               exit_code=1
             else
               # For non-main branches, override the branches configuration
@@ -232,7 +236,7 @@ jobs:
               GITHUB_REF=refs/heads/${BRANCH_NAME}
               # shellcheck disable=SC2034
               GITHUB_EVENT_NAME=push 
-              npx semantic-release --dry-run --branches "${BRANCH_NAME}" --branch "${BRANCH_NAME}" > semantic-release-output.log
+              npx semantic-release --dry-run --branches "${BRANCH_NAME}" --branch "${BRANCH_NAME}" --tag-format "${TAG_FORMAT}" > semantic-release-output.log
               exit_code=0
             fi
             # Dry run mode: use short git SHA and get next version for summary
@@ -257,14 +261,9 @@ jobs:
           else
             # Production mode: get next version and create actual tag
             NEXT_VERSION=$($SEMANTIC_RELEASE_CMD | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
-            tagFormat=$(node -e "const config=require('./release.config.js'); console.log(config.tagFormat)")
-            if [ "${tagFormat}" = "null" ]
-            then
-              tagFormat="v\${version}"
-            fi
             # disabling shellcheck as replace does not work
             # shellcheck disable=SC2001
-            VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+            VERSION_TAG=$(echo "$TAG_FORMAT" | sed "s/\${version}/$NEXT_VERSION/")
             echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
@@ -273,14 +272,16 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           BRANCH_NAME: ${{ inputs.branch_name }}
           PUBLISH_PACKAGE: ${{ inputs.publish_package }}
+          TAG_FORMAT: ${{ inputs.tag_format }}
 
       - name: Create semantic release tag
         if: ${{ !inputs.dry_run }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUBLISH_PACKAGE: ${{ inputs.publish_package }}
+          TAG_FORMAT: ${{ inputs.tag_format }}
         run: |
-          npx semantic-release
+          npx semantic-release --tag-format "${TAG_FORMAT}"
 
       - name: Get release for editing
         if: ${{ !inputs.dry_run }}
