@@ -10,14 +10,16 @@ This workflow uses the semantic-release npm package to generate a new version ta
 
 #### Inputs
 
+- `dry_run`: Whether to run in dry_run mode (do not create tags) or not
 - `tagFormat`: Default `v\\${version}`. A template for the version tag.
-- `semRelArgs`: Optional arguments to use when calling semantic-release
-- `useNpm`: Default false. If true, semantic-release will publish npm.
+- `branch_name`: The branch name to base the release on
+- `publish_package`: Default false. If true, semantic-release will publish npm package.
 - `asdfVersion`: Override the version of asdf to install.
 
 #### Outputs
 
 - `version_tag`: The version tag created by semantic-release.
+- `change_set_version`: A timestamped string that con be used for creating changesets.
 
 #### Example
 
@@ -34,6 +36,10 @@ jobs:
     uses: NHSDigital/eps-workflow-semantic-release/.github/workflows/tag-release.yml@1.0.0
   with:
     tagFormat: "v\\${version}-beta"
+    dry_run: true
+    asdfVersion: 0.18.0
+    branch_name: main
+    publish_package: false
 ```
 
 #### Mechanics
