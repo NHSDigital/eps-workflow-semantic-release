@@ -205,6 +205,7 @@ jobs:
             if [ "${BRANCH_NAME}" = "main" ]; then
               echo "on main branch"
               npx semantic-release --dry-run > semantic-release-output.log
+              exit_code=1
             else
               # For non-main branches, override the branches configuration
               echo "overriding branches for semantic-release to ${BRANCH_NAME}"
@@ -217,6 +218,7 @@ jobs:
               # shellcheck disable=SC2034
               GITHUB_EVENT_NAME=push 
               npx semantic-release --dry-run --branches "${BRANCH_NAME}" --branch "${BRANCH_NAME}" > semantic-release-output.log
+              exit_code=0
             fi
             # Dry run mode: use short git SHA and get next version for summary
             VERSION_TAG=$(git rev-parse --short HEAD)
@@ -225,7 +227,7 @@ jobs:
             then
               echo "Could not get next tag. Here is the log from semantic-release"
               cat semantic-release-output.log
-              exit 1
+              exit ${exit_code}
             fi
             tagFormat=$(node -e "const config=require('./release.config.js'); console.log(config.tagFormat)")
             if [ "${tagFormat}" = "null" ]
