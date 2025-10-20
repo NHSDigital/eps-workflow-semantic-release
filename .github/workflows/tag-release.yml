@@ -23,9 +23,13 @@ on:
         description: "The tag format to use for the release tags"
         required: false
         type: string
+        default: "v\\${version}"
     outputs:
       version_tag:
         value: ${{ jobs.tag_release.outputs.version_tag }}
+      change_set_version:
+        description: "The change set version for deployments"
+        value: ${{ jobs.tag_release.outputs.change_set_version }}
 
 jobs:
   install_semantic_release:
@@ -144,6 +148,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       version_tag: ${{steps.output_version_tag.outputs.VERSION_TAG}}
+      change_set_version: ${{ steps.output_change_set_version.outputs.CHANGE_SET_VERSION }}
     steps:
       - name: Fetch asdf artifact
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
