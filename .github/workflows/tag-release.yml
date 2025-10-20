@@ -242,14 +242,9 @@ jobs:
             # Dry run mode: use short git SHA and get next version for summary
             VERSION_TAG=$(git rev-parse --short HEAD)
             NEXT_VERSION=$(grep -i 'The next release version is' semantic-release-output.log | sed -E 's/.* ([[:digit:].]+)$/\1/')
-            tagFormat=$(node -e "const config=require('./release.config.js'); console.log(config.tagFormat)")
-            if [ "${tagFormat}" = "null" ]
-            then
-              tagFormat="v\${version}"
-            fi
             # disabling shellcheck as replace does not work
             # shellcheck disable=SC2001
-            NEW_VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+            NEW_VERSION_TAG=$(echo "$TAG_FORMAT" | sed "s/\${version}/$NEXT_VERSION/")
             echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
             echo "## NEXT TAG WILL BE : ${NEW_VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
             if [ -z "${NEXT_VERSION}" ]
