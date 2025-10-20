@@ -9,7 +9,22 @@ jobs:
     uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@a7ef5c07fc995ed3ed748c7958d677660032bcad
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  get_asdf_version:
+    runs-on: ubuntu-22.04
+    outputs:
+      asdf_version: ${{ steps.asdf-version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Get asdf version
+        id: asdf-version
+        run: echo "version=$(awk '!/^#/ && NF {print $1; exit}' .tool-versions.asdf)" >> "$GITHUB_OUTPUT"
 
   tag_release:
-    needs: quality_checks
+    needs: [quality_checks, get_asdf_version]
     uses: ./.github/workflows/tag-release.yml
+    with:
+      asdfVersion: ${{ needs.get_asdf_version.outputs.asdf_version }}
+      dry_run: false
+      branch_name: main

@@ -3,18 +3,14 @@ name: Tag Release
 on:
   workflow_call:
     inputs:
-      tagFormat:
-        type: string
-        required: false
-        default: "v\\${version}"
-      semRelArgs:
-        type: string
-        required: false
-        default: ""
-      useNpm:
+      dry_run:
+        description: "Whether to run in dry-run mode (true) or create actual tags (false)"
+        required: true
         type: boolean
-        required: false
-        default: false
+      branch_name:
+        description: "The branch name to base the release on"
+        required: true
+        type: string
       asdfVersion:
         type: string
         required: false
@@ -40,7 +36,6 @@ jobs:
             package.json
             package-lock.json
             .tool-versions
-            release.config.cjs
             releaseNotesTemplates/commit.hbs
 
       - name: Calculate asdf cache key
@@ -101,7 +96,7 @@ jobs:
         if: ${{ steps.asdf_cache.outputs.cache-hit == 'false' || steps.asdf_cache.outcome != 'skipped' }}
         uses: asdf-vm/actions/install@1902764435ca0dd2f3388eea723a4f92a4eb8302
         with:
-          asdf_branch: ${{ inputs.asdfVersion }}
+          asdf_version: ${{ inputs.asdfVersion }}
 
       - name: Install semantic release dependencies globally
         if: ${{ steps.installed_cache.outputs.cache-hit == 'false' || steps.installed_cache.outcome != 'skipped' }}
@@ -123,17 +118,11 @@ jobs:
           name: asdf_artifact
           path: asdf.tar.gz
 
-      - name: Prepare config artifact
-        run: |
-          mkdir -p config_artifact/releaseNotesTemplates
-          cp release.config.cjs config_artifact/
-          cp releaseNotesTemplates/commit.hbs config_artifact/releaseNotesTemplates/
-
-      - name: Upload config artifact
+      - name: Upload releaseNotesTemplates artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: config_artifact
-          path: config_artifact/
+          name: releaseNotesTemplates
+          path: releaseNotesTemplates/
 
   tag_release:
     needs: install_semantic_release
@@ -175,58 +164,119 @@ jobs:
           repository: ${{ github.repository }}
           ref: ${{ github.sha }}
 
+      - name: Setup Git branch for semantic-release
+        run: |
+          # When running from a PR, GitHub checks out a merge commit
+          # We need to ensure we're on the actual branch for semantic-release
+          git checkout -B ${{ inputs.branch_name }}
+          git branch --show-current
+
       - name: Fetch semantic-release config
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
         with:
-          name: config_artifact
+          name: releaseNotesTemplates
 
-      - name: Get next version tag
-        id: output_version_tag
+      - name: Install asdf
+        uses: asdf-vm/actions/setup@1902764435ca0dd2f3388eea723a4f92a4eb8302
+        with:
+          asdf_version: ${{ inputs.asdfVersion }}
+
+      - name: Cache asdf
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.asdf
+          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
+          restore-keys: |
+            ${{ runner.os }}-asdf-
+
+      - name: Install asdf dependencies in .tool-versions
+        uses: asdf-vm/actions/install@1902764435ca0dd2f3388eea723a4f92a4eb8302
+        with:
+          asdf_version: ${{ inputs.asdfVersion }}
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          PYTHON_CONFIGURE_OPTS: --enable-shared
+
+      - name: Install Dependencies
+        run: make install
+
+      - name: Set VERSION_TAG based on dry_run flag
+        id: output_version_tag
         run: |
-          SEMANTIC_RELEASE_OUTPUT=$(semantic-release \
-              --dry-run \
-              --tag-format ${{ inputs.tagFormat }} \
-              ${{ inputs.semRelArgs }})
-          echo "$SEMANTIC_RELEASE_OUTPUT"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            # Determine semantic-release command based on branch
+            if [ "${{ inputs.branch_name }}" = "main" ]; then
+              echo "on main branch"
+              npx semantic-release --dry-run > semantic-release-output.log
+            else
+              # For non-main branches, override the branches configuration
+              echo "overriding branches for semantic-release to ${{ inputs.branch_name }}"
 
-          NEXT_VERSION=$(\
-            echo "$SEMANTIC_RELEASE_OUTPUT" \
-            | grep -i 'The next release version is' \
-            | sed -E 's/.* ([[:digit:].]+)$/\1/'\
-          )
-          echo "NEXT_VERSION=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
+              # we need to set GITHUB_REF and GITHUB_EVENT_NAME for semantic-release to work correctly
+              # but need to ensure that actionlint does not complain about unused variables
 
-          tagFormat="${{ inputs.tagFormat }}"
-          VERSION_TAG=${tagFormat/\$\{version\}/$NEXT_VERSION}
-
-          echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
+              # shellcheck disable=SC2034
+              GITHUB_REF=refs/heads/${{ inputs.branch_name }}
+              # shellcheck disable=SC2034
+              GITHUB_EVENT_NAME=push 
+              npx semantic-release --dry-run --branches ${{ inputs.branch_name }} > semantic-release-output.log
+            fi
+            # Dry run mode: use short git SHA and get next version for summary
+            VERSION_TAG=$(git rev-parse --short HEAD)
+            NEXT_VERSION=$(grep -i 'The next release version is' semantic-release-output.log | sed -E 's/.* ([[:digit:].]+)$/\1/')
+            if [ -z "${NEXT_VERSION}" ]
+            then
+              echo "Could not get next tag. Here is the log from semantic-release"
+              cat semantic-release-output.log
+              exit 1
+            fi
+            tagFormat=$(node -e "const config=require('./release.config.js'); console.log(config.tagFormat)")
+            if [ "${tagFormat}" = "null" ]
+            then
+              tagFormat="v\${version}"
+            fi
+            # disabling shellcheck as replace does not work
+            # shellcheck disable=SC2001
+            NEW_VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+            echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
+            echo "## NEXT TAG WILL BE : ${NEW_VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            # Production mode: get next version and create actual tag
+            NEXT_VERSION=$($SEMANTIC_RELEASE_CMD | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+            tagFormat=$(node -e "const config=require('./release.config.js'); console.log(config.tagFormat)")
+            if [ "${tagFormat}" = "null" ]
+            then
+              tagFormat="v\${version}"
+            fi
+            # disabling shellcheck as replace does not work
+            # shellcheck disable=SC2001
+            VERSION_TAG=$(echo "$tagFormat" | sed "s/\${version}/$NEXT_VERSION/")
+            echo "## VERSION TAG : ${VERSION_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          fi
           echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_OUTPUT"
           echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_ENV"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Create Release
-        if: ${{ steps.output_version_tag.outputs.NEXT_VERSION != '' }}
+      - name: Create semantic release tag
+        if: ${{ !inputs.dry_run }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          semantic-release \
-              --tag-format ${{ inputs.tagFormat }} \
-              ${{ inputs.semRelArgs }}
+          npx semantic-release
 
       - name: Get release for editing
+        if: ${{ !inputs.dry_run }}
         id: get_release
-        if: ${{ steps.output_version_tag.outputs.NEXT_VERSION != '' }}
         # version 1.2.4
         uses: cardinalby/git-get-release-action@5172c3a026600b1d459b117738c605fabc9e4e44
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          repo: ${{ github.repository }}
           tag: ${{ steps.output_version_tag.outputs.VERSION_TAG }}
 
       - name: Edit Release
-        if: ${{ steps.output_version_tag.outputs.NEXT_VERSION != '' }}
+        if: ${{ !inputs.dry_run }}
         # version 1.2.0
         uses: irongut/EditRelease@ccf529ad26dddf9996e7dd0f24ca5da4ea507cc2
         with:
@@ -235,5 +285,14 @@ jobs:
           body: |
             ## Info
             [See code diff](${{ github.event.compare }})
-            [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) - Workflow ID: ${{ github.run_id }}
+            [Release workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
             It was initialized by [${{ github.event.sender.login }}](${{ github.event.sender.html_url }})
+
+      - name: Output Change Set Version
+        id: output_change_set_version
+        shell: bash
+        run: |
+          TIMESTAMP=$(date +%s)
+          VERSION=$(echo ${{ steps.output_version_tag.outputs.VERSION_TAG }} | tr . -)
+          echo CHANGE_SET_VERSION="$VERSION-$TIMESTAMP" >> "$GITHUB_OUTPUT"
