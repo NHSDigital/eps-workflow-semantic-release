@@ -216,7 +216,7 @@ jobs:
               GITHUB_REF=refs/heads/${BRANCH_NAME}
               # shellcheck disable=SC2034
               GITHUB_EVENT_NAME=push 
-              npx semantic-release --dry-run --branches "${BRANCH_NAME}" > semantic-release-output.log
+              npx semantic-release --dry-run --branches "${BRANCH_NAME}" --branch "${BRANCH_NAME}" > semantic-release-output.log
             fi
             # Dry run mode: use short git SHA and get next version for summary
             VERSION_TAG=$(git rev-parse --short HEAD)
