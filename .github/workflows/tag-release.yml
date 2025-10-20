@@ -149,7 +149,7 @@ jobs:
           NODE_DIR="$HOME/.asdf/installs/nodejs/$NODE_VER"
 
           echo "Using Node $NODE_VER from cache at $NODE_DIR"
-          asdf global nodejs "$NODE_VER"
+          asdf set -u nodejs "$NODE_VER"
 
           # Prepend binaries to path
           echo "$NODE_DIR/bin" >> "$GITHUB_PATH"
