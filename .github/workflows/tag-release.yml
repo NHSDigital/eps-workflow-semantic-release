@@ -169,8 +169,10 @@ jobs:
         run: |
           # When running from a PR, GitHub checks out a merge commit
           # We need to ensure we're on the actual branch for semantic-release
-          git checkout -B ${{ inputs.branch_name }}
+          git checkout -B "${BRANCH_NAME}"
           git branch --show-current
+        env:
+          BRANCH_NAME: ${{ inputs.branch_name }}
 
       - name: Fetch semantic-release config
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
