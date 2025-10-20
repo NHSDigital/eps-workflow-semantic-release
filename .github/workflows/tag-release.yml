@@ -260,7 +260,8 @@ jobs:
             fi
           else
             # Production mode: get next version and create actual tag
-            NEXT_VERSION=$($SEMANTIC_RELEASE_CMD | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')
+            npx semantic-release --dry-run --tag-format "${TAG_FORMAT}" > semantic-release-output.log
+            NEXT_VERSION=$(grep -i 'The next release version is' semantic-release-output.log | sed -E 's/.* ([[:digit:].]+)$/\1/')
             # disabling shellcheck as replace does not work
             # shellcheck disable=SC2001
             VERSION_TAG=$(echo "$TAG_FORMAT" | sed "s/\${version}/$NEXT_VERSION/")
