@@ -22,7 +22,7 @@ RUN ASDF_VERSION=$(awk '!/^#/ && NF {print $1; exit}' /tmp/.tool-versions.asdf) 
 USER vscode
 
 
-ENV PATH="$PATH:/home/vscode/.asdf/bin/:/workspaces/eps-workflow-semantic-release/node_modules/.bin"
+ENV PATH="$PATH:/home/vscode/.asdf/bin/:/workspaces/eps-workflow-semantic-release/node_modules/.bin:$HOME/.asdf/shims"
 
 # Install ASDF plugins#
 RUN asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git; \

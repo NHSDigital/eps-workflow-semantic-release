@@ -134,15 +134,16 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
         with:
           name: asdf_artifact
+      - name: Install asdf
+        uses: asdf-vm/actions/setup@1902764435ca0dd2f3388eea723a4f92a4eb8302
+        with:
+          asdf_version: ${{ inputs.asdfVersion }}
 
       - name: Extract asdf
         run: tar -xzf asdf.tar.gz -C "$HOME"
 
       - name: Setup node from cache
         run: |
-          # Source asdf
-          source "$HOME/.asdf/asdf.sh"
-
           # Get installed node version (trim whitespace with xargs)
           NODE_VER=$(asdf list nodejs | head -n1 | xargs)
           NODE_DIR="$HOME/.asdf/installs/nodejs/$NODE_VER"
@@ -175,12 +176,6 @@ jobs:
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
         with:
           name: releaseNotesTemplates
-
-      - name: Install asdf
-        uses: asdf-vm/actions/setup@1902764435ca0dd2f3388eea723a4f92a4eb8302
-        with:
-          asdf_version: ${{ inputs.asdfVersion }}
-
       - name: Cache asdf
         uses: actions/cache@v4
         with:
@@ -205,21 +200,21 @@ jobs:
         run: |
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             # Determine semantic-release command based on branch
-            if [ "${{ inputs.branch_name }}" = "main" ]; then
+            if [ "${BRANCH_NAME}" = "main" ]; then
               echo "on main branch"
               npx semantic-release --dry-run > semantic-release-output.log
             else
               # For non-main branches, override the branches configuration
-              echo "overriding branches for semantic-release to ${{ inputs.branch_name }}"
+              echo "overriding branches for semantic-release to ${BRANCH_NAME}"
 
               # we need to set GITHUB_REF and GITHUB_EVENT_NAME for semantic-release to work correctly
               # but need to ensure that actionlint does not complain about unused variables
 
               # shellcheck disable=SC2034
-              GITHUB_REF=refs/heads/${{ inputs.branch_name }}
+              GITHUB_REF=refs/heads/${BRANCH_NAME}
               # shellcheck disable=SC2034
               GITHUB_EVENT_NAME=push 
-              npx semantic-release --dry-run --branches ${{ inputs.branch_name }} > semantic-release-output.log
+              npx semantic-release --dry-run --branches "${BRANCH_NAME}" > semantic-release-output.log
             fi
             # Dry run mode: use short git SHA and get next version for summary
             VERSION_TAG=$(git rev-parse --short HEAD)
@@ -257,6 +252,7 @@ jobs:
           echo "VERSION_TAG=${VERSION_TAG}" >> "$GITHUB_ENV"
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ inputs.branch_name }}
 
       - name: Create semantic release tag
         if: ${{ !inputs.dry_run }}
