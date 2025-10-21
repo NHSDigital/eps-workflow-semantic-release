@@ -34,6 +34,9 @@ on:
       NPM_TOKEN:
         required: false
         description: "NPM token to publish packages"
+      GITHUB_TOKEN:
+        required: false
+        description: "GitHub token to create tags and releases"
 jobs:
   install_semantic_release:
     # Install asdf
