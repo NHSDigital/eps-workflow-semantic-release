@@ -281,6 +281,7 @@ jobs:
         if: ${{ !inputs.dry_run }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           PUBLISH_PACKAGE: ${{ inputs.publish_package }}
           TAG_FORMAT: ${{ inputs.tag_format }}
         run: |
