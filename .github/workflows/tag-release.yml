@@ -279,11 +279,12 @@ jobs:
           BRANCH_NAME: ${{ inputs.branch_name }}
           PUBLISH_PACKAGE: ${{ inputs.publish_package }}
           TAG_FORMAT: ${{ inputs.tag_format }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create semantic release tag
         if: ${{ !inputs.dry_run }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           PUBLISH_PACKAGE: ${{ inputs.publish_package }}
           TAG_FORMAT: ${{ inputs.tag_format }}
