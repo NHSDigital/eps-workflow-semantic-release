@@ -34,6 +34,9 @@ on:
       NPM_TOKEN:
         required: false
         description: "NPM token to publish packages"
+      INTERNAL_GITHUB_TOKEN:
+        required: false
+        description: "GitHub token to create tags and releases"
 jobs:
   install_semantic_release:
     # Install asdf
@@ -284,7 +287,7 @@ jobs:
       - name: Create semantic release tag
         if: ${{ !inputs.dry_run }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.INTERNAL_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           PUBLISH_PACKAGE: ${{ inputs.publish_package }}
           TAG_FORMAT: ${{ inputs.tag_format }}
