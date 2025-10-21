@@ -217,9 +217,11 @@ jobs:
         env:
           PYTHON_CONFIGURE_OPTS: --enable-shared
 
-      - name: Install Dependencies
+      - name: Install Dependencies and Build Package
         if: ${{ inputs.publish_package }}
-        run: make install
+        run: |
+          make install
+          make build
 
       - name: Set VERSION_TAG based on dry_run flag
         id: output_version_tag
