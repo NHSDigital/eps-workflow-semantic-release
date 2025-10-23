@@ -6,7 +6,7 @@ on:
 
 jobs:
   quality_checks:
-    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@a7ef5c07fc995ed3ed748c7958d677660032bcad
+    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@cb3642c115ceff7be6e2c4a7a63d36ae29b1a339
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   get_asdf_version:
