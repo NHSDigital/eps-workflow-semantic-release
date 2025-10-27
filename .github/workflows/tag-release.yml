@@ -295,7 +295,8 @@ jobs:
           TAG_FORMAT: ${{ inputs.tag_format }}
           PKG_ROOT: ${{ inputs.pkg_root }}
         run: |
-          npx semantic-release --tag-format "${TAG_FORMAT}"
+          npx semantic-release  --branches "${BRANCH_NAME}" --branch "${BRANCH_NAME}" --tag-format "${TAG_FORMAT}"
+          # npx semantic-release --tag-format "${TAG_FORMAT}"
 
       - name: Get release for editing
         if: ${{ !inputs.dry_run }}
