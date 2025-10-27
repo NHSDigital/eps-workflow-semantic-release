@@ -300,7 +300,7 @@ jobs:
           GITHUB_REF=refs/heads/${BRANCH_NAME}
           # shellcheck disable=SC2034
           GITHUB_EVENT_NAME=push 
-          npx semantic-release  --branches "${BRANCH_NAME}" --branch "${BRANCH_NAME}" --tag-format "${TAG_FORMAT}"
+          npx semantic-release  --debug --branches "${BRANCH_NAME}" --branch "${BRANCH_NAME}" --tag-format "${TAG_FORMAT}"
           # npx semantic-release --tag-format "${TAG_FORMAT}"
 
       - name: Get release for editing
