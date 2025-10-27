@@ -296,6 +296,10 @@ jobs:
           PKG_ROOT: ${{ inputs.pkg_root }}
           BRANCH_NAME: ${{ inputs.branch_name }}
         run: |
+          # shellcheck disable=SC2034
+          GITHUB_REF=refs/heads/${BRANCH_NAME}
+          # shellcheck disable=SC2034
+          GITHUB_EVENT_NAME=push 
           npx semantic-release  --branches "${BRANCH_NAME}" --branch "${BRANCH_NAME}" --tag-format "${TAG_FORMAT}"
           # npx semantic-release --tag-format "${TAG_FORMAT}"
 
