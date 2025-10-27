@@ -294,6 +294,7 @@ jobs:
           PUBLISH_PACKAGE: ${{ inputs.publish_package }}
           TAG_FORMAT: ${{ inputs.tag_format }}
           PKG_ROOT: ${{ inputs.pkg_root }}
+          BRANCH_NAME: ${{ inputs.branch_name }}
         run: |
           npx semantic-release  --branches "${BRANCH_NAME}" --branch "${BRANCH_NAME}" --tag-format "${TAG_FORMAT}"
           # npx semantic-release --tag-format "${TAG_FORMAT}"
