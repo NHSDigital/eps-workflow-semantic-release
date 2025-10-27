@@ -3,6 +3,7 @@ const { readFileSync } = require("fs")
 
 const commitTemplate = readFileSync("./releaseNotesTemplates/commit.hbs").toString()
 const publish_package = process.env.PUBLISH_PACKAGE === "true"
+const pkgRoot = process.env.PKG_ROOT || "."
 
 module.exports = {
     branches: [
@@ -66,7 +67,7 @@ module.exports = {
                 changelogFile: "CHANGELOG.md"
             }
         ],
-        ...(publish_package ? ["@semantic-release/npm"] : []),
+        ...(publish_package ? ["@semantic-release/npm", {pkgRoot}] : []),
         [
             "@semantic-release/github",
             {
