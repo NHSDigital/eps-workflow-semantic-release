@@ -3,7 +3,7 @@ const { readFileSync } = require("fs")
 
 const commitTemplate = readFileSync("./releaseNotesTemplates/commit.hbs").toString()
 const publish_package = process.env.PUBLISH_PACKAGE === "true"
-const mainBranch = process.env.MAIN_BRANCH
+const mainBranch = process.env.MAIN_BRANCH || "main"
 
 module.exports = {
     branches: [
