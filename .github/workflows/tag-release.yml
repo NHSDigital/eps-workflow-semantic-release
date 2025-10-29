@@ -24,6 +24,11 @@ on:
         required: false
         type: string
         default: "v\\${version}"
+      main_branch:
+        description: "The main branch name for releases"
+        required: false
+        type: string
+        default: "main"
     outputs:
       version_tag:
         value: ${{ jobs.tag_release.outputs.version_tag }}
@@ -280,6 +285,7 @@ jobs:
           PUBLISH_PACKAGE: ${{ inputs.publish_package }}
           TAG_FORMAT: ${{ inputs.tag_format }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          MAIN_BRANCH: ${{ inputs.main_branch }}
 
       - name: Create semantic release tag
         if: ${{ !inputs.dry_run }}
@@ -288,6 +294,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           PUBLISH_PACKAGE: ${{ inputs.publish_package }}
           TAG_FORMAT: ${{ inputs.tag_format }}
+          MAIN_BRANCH: ${{ inputs.main_branch }}
         run: |
           npx semantic-release --tag-format "${TAG_FORMAT}"
 
