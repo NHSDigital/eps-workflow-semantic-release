@@ -15,6 +15,7 @@ This workflow uses the semantic-release npm package to generate a new version ta
 - `branch_name`: The branch name to base the release on
 - `publish_package`: Default false. If true, semantic-release will publish npm package.
 - `asdfVersion`: Override the version of asdf to install.
+- `main_branch`: The branch to use for publishing. Defaults to main
 
 #### Outputs
 
