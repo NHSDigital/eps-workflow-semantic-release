@@ -236,8 +236,8 @@ jobs:
         run: |
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             # Determine semantic-release command based on branch
-            if [ "${BRANCH_NAME}" = "main" ]; then
-              echo "on main branch"
+            if [ "${BRANCH_NAME}" = "${MAIN_BRANCH}" ]; then
+              echo "on ${MAIN_BRANCH} branch"
               npx semantic-release --dry-run --tag-format "${TAG_FORMAT}" > semantic-release-output.log
               exit_code=1
             else
