@@ -22,7 +22,7 @@ on:
 
 jobs:
   combine-dependabot-prs:
-    uses: NHSDigital/eps-workflow-dependabot/.github/workflows/combine-dependabot-prs.yml@9718878c49a9057fafae1a58b29265e3db748380
+    uses: NHSDigital/eps-workflow-dependabot/.github/workflows/combine-dependabot-prs.yml@3d9b45ccef334fa05fd2236aa4369c55f78a111a
     with:
       branchPrefix: ${{ github.event.inputs.branchPrefix }}
       mustBeGreen: ${{ github.event.inputs.mustBeGreen }}
